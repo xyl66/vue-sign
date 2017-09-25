@@ -95,11 +95,14 @@ export default {
         //     console.log(res)
         // })
         this.getLocation().then(res => {
-            var addComp = res.addressComponents;
-            alert(addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber);
+            return this.locToString(res.coords.longitude, res.coords.latitude)
+        }).then(res => {
+            this.signData.sign_place = res.regeocode.formattedAddress; //返回地址描述
         }).catch(err => {
-            console.log(err)
-            alert(err);
+            this.$vux.toast.show({
+            text: err,
+            type: 'warn'
+          })
         });
     },
     methods: {
@@ -114,27 +117,45 @@ export default {
             })
         },
         getLocation: function() {
-            return new Promise((resovle, reject) => {
+            return new Promise((resolve, reject) => {
                 var map = new BMap.Map("allmap");
-                var longitude, latitude, _this = this;
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    longitude = position.coords.longitude;
-                    latitude = position.coords.latitude;
-                    var gpsPoint = new BMap.Point(longitude, latitude);
-                    BMap.Convertor.translate(gpsPoint, 0, function(point) {
-                        var geoc = new BMap.Geocoder();
-                        geoc.getLocation(point, function(rs) {
-                            resolve(rs)
-                        });
-                    });
-
+                    resolve(position);
                 }, function(error) {
-                    var errorType = ['您拒绝共享位置信息', '获取不到位置信息', '获取位置信息超时'];
-                    reject(errorType[error.code - 1]);
+                    var errMsg = '';
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errMsg ="用户拒绝对获取地理位置的请求";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errMsg = "位置信息是不可用的"
+                            break;
+                        case error.TIMEOUT:
+                            errMsg = "请求用户地理位置超时"
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            errMsg = "未知错误。";
+                            break;
+                    }
+                    reject(errMsg);
                 });
             })
 
         },
+        locToString: function(longitude, latitude) {
+            return new Promise((resolve, reject) => {
+                var geocoder = new AMap.Geocoder({
+                    radius: 1000,
+                    extensions: "all"
+                }), lnglatXY = [longitude, latitude]; //已知点坐标
+                geocoder.getAddress(lnglatXY, function(status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                        resolve(result);
+                    }
+                });
+            })
+
+        }
     },
 }
 </script>
