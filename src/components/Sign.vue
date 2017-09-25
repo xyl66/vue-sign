@@ -114,7 +114,7 @@ export default {
             })
         },
         getLocation: function() {
-            return new Promise((resovle, reject) => {
+            return new Promise((resolve, reject) => {
                 var map = new BMap.Map("allmap");
                 var longitude, latitude, _this = this;
                 navigator.geolocation.getCurrentPosition(function(position) {
