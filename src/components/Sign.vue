@@ -1,28 +1,34 @@
 <template>
   <div>
     <x-header :left-options="{showBack: false}">J次集团课程签到系统</x-header>
-    <divider>{{courseInfo.course.name}}</divider>
+    <divider class="title">{{courseInfo.course.name}}</divider>
     <card :header="{title:'课程信息'}">
       <div slot="content" class="card-demo-flex card-demo-content01">
         <div class="vux-1px-l vux-1px-r">
           主会场
           <br/>
+          <span class="iconfont icon-changdi"></span>
           <span>{{courseInfo.course.course_place}}</span>
         </div>
         <div>
           主讲人
           <br/>
+          <span class="iconfont icon-ren"></span>
           <span>{{courseInfo.course.course_speaker}}</span>
         </div>
       </div>
     </card>
-    <card :header="{title:'课程时间'}">
+    <card :header="{title:'课程时间 '+courseInfo.course_time.date}">
       <div slot="content" class="card-time-flex card-demo-content01">
         <div class="vux-1px-l time-right">
           <span>{{courseInfo.course_time.start}}</span>
+          <br/>
+          <span class="iconfont icon-shijian">开始</span>
         </div>
         <div>
           <span>{{courseInfo.course_time.end}}</span>
+          <br/>
+          <span class="iconfont icon-shijian">结束</span>
         </div>
       </div>
     </card>
@@ -109,24 +115,35 @@ export default {
     }
   },
   mounted() {
-    var url = `${Config.service.getCourseInfoUrl}/?cid=${this.$route.params.id}`;
-    console.log(url)
-    this.$http.get(url).then(response => {
-      //求助的部分
-      console.log(response.data)
-      if (response.data.status) {
-        this.courseInfo = response.data.data
-      } else {
-        // 显示文字
-        this.$vux.toast.show({
-          text: response.data.msg,
-          type: 'warn'
-        })
-      }
-    }).then(this.getLocation())
+    this.getCourseInfo(this.$route.params.id).then(res => {
+      let date=res.data.course_time.start.substr(0,10),
+      newstart=res.data.course_time.start.substr(11),
+      newend=res.data.course_time.end.substr(11);
+      Object.assign(res.data.course_time,{date:date,start:newstart,end:newend});
+      this.courseInfo = res.data
+    }).then(this.getLocation()).catch(err => {
+      this.$vux.toast.show({
+        text: err.msg,
+        type: 'warn'
+      })
+    })
   },
   methods: {
-    signHandler: function () {
+    getCourseInfo: function(id) {
+      return new Promise((resolve, reject) => {
+        var url = `${Config.service.getCourseInfoUrl}/?cid=${id}`;
+        this.$http.get(url).then(response => {
+          //求助的部分
+          if (response.data.status) {
+            resolve(response.data)
+          } else {
+            reject(response.data)
+            // 显示文字
+          }
+        })
+      })
+    },
+    signHandler: function() {
       var querystring = require('querystring');
       var url = Config.service.couseSignUrl,
         signdata = {
@@ -152,25 +169,25 @@ export default {
         // 失败回调
       });
     },
-    getAddress: function (position) {
+    getAddress: function(position) {
       console.log("dingwei")
       var address,
         _this = this,
         latitude = position.coords.latitude,
         longitude = position.coords.longitude,
-        lnglatXY=[longitude,latitude];
+        lnglatXY = [longitude, latitude];
       //通过高德地图 API获取街道名称
-         var geocoder = new AMap.Geocoder({
-            radius: 1000,
-            extensions: "all"
-        });        
-        geocoder.getAddress(lnglatXY, function(status, result) {
-            if (status === 'complete' && result.info === 'OK') {
-                _this.inputArr[3].value=result.regeocode.formattedAddress; //返回地址描述
-            }
-        });        
+      var geocoder = new AMap.Geocoder({
+        radius: 1000,
+        extensions: "all"
+      });
+      geocoder.getAddress(lnglatXY, function(status, result) {
+        if (status === 'complete' && result.info === 'OK') {
+          _this.inputArr[3].value = result.regeocode.formattedAddress; //返回地址描述
+        }
+      });
     },
-    getLocation: function () {
+    getLocation: function() {
       var _this = this
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(_this.getAddress, _this.showError);
@@ -179,7 +196,7 @@ export default {
         console.log("该浏览器不支持获取地理位置");
       }
     },
-    showError: function (error) {
+    showError: function(error) {
       var innerHTML;
       switch (error.code) {
         case error.PERMISSION_DENIED:
@@ -217,6 +234,10 @@ export default {
 <style scoped lang="less">
 @import '~vux/src/styles/1px.less';
 
+.title {
+  font-weight: 600;
+}
+
 .card-demo-flex,
 .card-time-flex {
   display: flex;
@@ -237,12 +258,27 @@ export default {
   font-size: 12px;
 }
 
-.card-demo-flex span {
-  color: #f74c31;
+.card-demo-flex div:first-child span {
+  color: #ff629a;
 }
 
-.card-time-flex span {
+.card-demo-flex div:last-child span {
+  color: #1296db;
+}
+
+.card-time-flex span:first-child {
+  color: #000;
+  font-size: 12px;
+}
+
+.card-time-flex div:first-child span:last-child {
+  color: #04be02;
+  font-size: 14px;
+}
+
+.card-time-flex div:last-child span:last-child {
   color: #f74c31;
+  font-size: 14px;
 }
 
 .time-right::after {
@@ -251,6 +287,8 @@ export default {
   top: 0px;
   right: 0px;
   color: black;
+  height: 100%;
+  line-height: 41px;
 }
 
 .demo-icon {
