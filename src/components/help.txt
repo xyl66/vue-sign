@@ -1,0 +1,2 @@
+post请求 thinkphp5获取不到参数解决：
+通过querystring.stringify(obj)将对象转化为字符串参数
