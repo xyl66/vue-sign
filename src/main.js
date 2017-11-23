@@ -4,23 +4,21 @@ import Vue from 'vue'
 import FastClick from 'fastclick'
 import VueRouter from 'vue-router'
 import App from './App'
-import Home from './components/HelloFromVux'
-import Sign from './components/Sign'
-import { AjaxPlugin } from 'vux'
+import Job from './components/Job'
+import { AjaxPlugin, AlertPlugin, ToastPlugin } from 'vux'
 Vue.use(AjaxPlugin)
+Vue.use(AlertPlugin)
+Vue.use(ToastPlugin)
 
 Vue.use(VueRouter)
 
-const routes = [{
-  path: '/',
-  component: Home
-},{
-  path: '/sign/:id',
-  component: Sign
+const routes = [ {
+    path: '/job/:id',
+    component: Job
 }]
 
 const router = new VueRouter({
-  routes
+    routes
 })
 
 FastClick.attach(document.body)
@@ -29,6 +27,6 @@ Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
-  router,
-  render: h => h(App)
+    router,
+    render: h => h(App)
 }).$mount('#app-box')
