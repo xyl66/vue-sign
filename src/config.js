@@ -1,5 +1,5 @@
-//let host='http://esn.foxconn.com';
-let host='http://10.130.2.19';
+let host='http://esn.foxconn.com';
+//let host='http://10.130.2.19';
 const config={
     service:{
         host,

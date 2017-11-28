@@ -6,15 +6,21 @@
       <section v-for="(item,index) of inputArr" :key="index">
         <x-input v-if="item.key!='性别:'"  :title="item.key" :placeholder="'请点此填写'+item.key" v-model="item.value" required>
           <span slot="label" class="title-section">
-            <span :class="item.icon" class="iconfont demo-icon" style="font-size:20px;vertical-align:middle;"></span>{{item.key}}</span>
+            <span :class="item.icon" class="iconfont demo-icon" ></span>{{item.key}}</span>
         </x-input>
         <section class="sex-section" v-else>
           <span :class="item.icon" class="iconfont demo-icon" style="font-size:20px;vertical-align:middle;"></span>
-          <selector  class="sel-section"  :title="item.key" :options="list" v-model="item.value">
-            </selector>
+          <div data-v-31c25889="" class="weui-cell sel-section weui-cell_select weui-cell_select-after">
+            <div class="weui-cell__hd">
+              <label for="vux-selector-02mrm" class="weui-label">{{item.key}}</label>
+            </div> 
+            <div class="weui-cell__bd">
+                <select v-model="item.value" class="weui-select">
+                  <option v-for="(itm,idx) of list" :key="idx" :value="itm.key">{{itm.value}}</option>
+                </select>
+            </div>
+          </div>
         </section>
-        
-        
       </section>
     </group>
     <x-button type="primary" action-type="button" @click.native="signHandler">确认报名</x-button>
@@ -22,38 +28,8 @@
 </template>
 
 <script>
-import {
-  XHeader,
-  XButton,
-  GroupTitle,
-  Group,
-  Cell,
-  CellBox,
-  XInput,
-  Selector,
-  Divider,
-  Card,
-  Flexbox,
-  FlexboxItem
-} from "vux";
+import { XHeader, XButton, GroupTitle, Group, Cell, CellBox, XInput, Divider, Card, Flexbox, FlexboxItem } from "vux";
 import Config from "../config";
-function showError(error) {
-  var innerHTML;
-  switch (error.code) {
-    case error.PERMISSION_DENIED:
-      console.log("用户拒绝对获取地理位置的请求。");
-      break;
-    case error.POSITION_UNAVAILABLE:
-      console.log("位置信息是不可用的。");
-      break;
-    case error.TIMEOUT:
-      console.log("请求用户地理位置超时。");
-      break;
-    case error.UNKNOWN_ERROR:
-      console.log("未知错误。");
-      break;
-  }
-}
 export default {
   components: {
     XHeader,
@@ -63,11 +39,10 @@ export default {
     Cell,
     CellBox,
     XInput,
-    Selector,
     Divider,
     Card,
     Flexbox,
-    FlexboxItem
+    FlexboxItem,
   },
   data() {
     return {
@@ -118,7 +93,7 @@ export default {
           value: ""
         }
       ],
-      list: [{key: 'man', value: '男'}, {key: 'woman', value: '女'}],
+      list: [{ key: "man", value: "男" }, { key: "woman", value: "女" }],
       value: ""
     };
   },
@@ -129,7 +104,7 @@ export default {
       var url = Config.service.jobSignUrl,
         signdata = {
           user_name: this.inputArr[0].value,
-          user_sex:this.inputArr[1].value,
+          user_sex: this.inputArr[1].value,
           user_tel: this.inputArr[2].value,
           user_school: this.inputArr[3].value,
           user_special: this.inputArr[4].value,
@@ -230,17 +205,52 @@ export default {
 .title-section::after {
   content: ":";
 }
-.sex-section{
+.sex-section {
   display: flex;
+  height: 48px;
 }
-.sex-section span{
+.sex-section span {
   padding: 10px 15px;
   margin-right: -30px;
 }
-.sel-section,.sel-section::before{
-  border-top:1px solid #fff; 
+.sel-section,
+.sel-section::before {
+  border-top: 1px solid #fff;
 }
-.sel-section{
+.sel-section {
   width: 100%;
+}
+.vux-selector-no-padding, .weui-cell_select-after .weui-select {
+    padding-left: 0;
+}
+.weui-select {
+    -webkit-appearance: none;
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+    width: 100%;
+    font-size: inherit;
+    height: 44px;
+    line-height: 44px;
+    position: relative;
+    z-index: 1;
+    padding-left: 15px;
+}
+cell_select .weui-cell__bd:after {
+    content: " ";
+    display: inline-block;
+    height: 6px;
+    width: 6px;
+    border-width: 2px 2px 0 0;
+    border-color: #c8c8cd;
+    border-style: solid;
+    -webkit-transform: matrix(.71,.71,-.71,.71,0,0);
+    transform: matrix(.71,.71,-.71,.71,0,0);
+    position: relative;
+    top: -2px;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    margin-top: -4px;
 }
 </style>
